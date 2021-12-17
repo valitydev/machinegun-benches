@@ -1,0 +1,87 @@
+version: '2'
+
+services:
+  machinegun:
+    image: dr2.rbkmoney.com/rbkmoney/build-erlang:cc2d319150ec0b9cd23ad9347692a8066616b0f4
+    volumes:
+      - .:/machinegunner
+      - /home/keynslug/.cache:/home/keynslug/.cache
+      - /home/keynslug/.ssh:/home/keynslug/.ssh:ro
+    working_dir: /machinegunner
+    command: /sbin/init
+    depends_on:
+      - riak0
+      # - kafka1
+      # - kafka2
+      # - kafka3
+    networks:
+      - default
+
+  riak0:
+    image: dr2.rbkmoney.com/rbkmoney/riak-base:e0d38b2d6e8820bb94f26559a519871bcd789490
+    hostname: riak0.compose
+    environment:
+      - CLUSTER_NAME=riakkv
+    labels:
+      - "com.basho.riak.cluster.name=riakkv"
+    volumes:
+      - ./riak.user.conf:/etc/riak/user.conf:ro
+    networks:
+      default:
+        aliases:
+          - riak.compose
+  riak1:
+    &riak-node
+    image: dr2.rbkmoney.com/rbkmoney/riak-base:e0d38b2d6e8820bb94f26559a519871bcd789490
+    hostname: riak1.compose
+    labels:
+      - "com.basho.riak.cluster.name=riakkv"
+    links:
+      - riak0
+    depends_on:
+      - riak0
+    environment:
+      - CLUSTER_NAME=riakkv
+      - COORDINATOR_NODE=riak0.compose
+    volumes:
+      - ./riak.user.conf:/etc/riak/user.conf:ro
+    networks:
+      default:
+        aliases:
+          - riak.compose
+  riak2:
+    <<: *riak-node
+    hostname: riak2.compose
+
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:5.1.2
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+
+  # kafka1: &kafka-broker
+  #   image: confluentinc/cp-kafka:5.1.2
+  #   depends_on:
+  #     - zookeeper
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092
+  # kafka2:
+  #   <<: *kafka-broker
+  #   environment:
+  #     KAFKA_BROKER_ID: 2
+  #     KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9092
+  # kafka3:
+  #   <<: *kafka-broker
+  #   environment:
+  #     KAFKA_BROKER_ID: 3
+  #     KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3:9092
+
+networks:
+  default: {}
+
+volumes:
+  schemas:
+    external: false

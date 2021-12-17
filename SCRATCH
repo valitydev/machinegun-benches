@@ -1,0 +1,3 @@
+mgnr_loadgen:run(60, 1, {4, 0.1}, {uniquize, fun mgnr_counter:init/1}).
+mgnr_loadgen:run(60, 5, {4, 0.1}, {uniquize, fun mgnr_counter:init/1}).
+mgnr_loadgen:run(60, 25, {4, 0.1}, {uniquize, fun mgnr_counter:init/1}).

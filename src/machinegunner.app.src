@@ -1,0 +1,16 @@
+{application, machinegunner, [
+    {description, "Machinegun-but-faster"},
+    {vsn, "1"},
+    {registered, []},
+    {applications, [
+        kernel,
+        stdlib,
+        genlib,
+        machinegun_core
+    ]},
+    {env, []},
+    {modules, []},
+    {mod, {machinegunner, []}},
+    {licenses, []},
+    {links, []}
+]}.
